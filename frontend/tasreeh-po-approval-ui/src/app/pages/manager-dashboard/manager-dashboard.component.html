@@ -1,0 +1,110 @@
+<div class="mgr-dashboard">
+    <div class="page-header">
+        <h1>Manager Dashboard</h1>
+        <p class="page-description">Overview of all purchase order requests and approvals</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card" (click)="setTab('all')" [class.active]="activeTab === 'all'">
+            <div class="stat-icon total">
+                <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ stats.total }}</span>
+                <span class="stat-label">Total Orders</span>
+            </div>
+        </div>
+        <div class="stat-card" (click)="setTab('pending')" [class.active]="activeTab === 'pending'">
+            <div class="stat-icon pending">
+                <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ stats.pending }}</span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+        <div class="stat-card" (click)="setTab('auto_approved')" [class.active]="activeTab === 'auto_approved'">
+            <div class="stat-icon auto">
+                <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ stats.autoApproved }}</span>
+                <span class="stat-label">Auto Approved</span>
+            </div>
+        </div>
+        <div class="stat-card" (click)="setTab('manual_approved')" [class.active]="activeTab === 'manual_approved'">
+            <div class="stat-icon manual">
+                <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ stats.manualApproved }}</span>
+                <span class="stat-label">Manual Approved</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading orders...</span>
+    </div>
+
+    <!-- Orders Table -->
+    <div *ngIf="!loading" class="card">
+        <div class="card-header">
+            <h3>{{ activeTab === 'all' ? 'All Orders' : activeTab === 'pending' ? 'Pending Orders' : activeTab ===
+                'auto_approved' ? 'Auto Approved' : 'Manually Approved' }}</h3>
+            <span class="count-badge">{{ filteredOrders.length }} orders</span>
+        </div>
+        <table class="table" *ngIf="filteredOrders.length > 0">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Item</th>
+                    <th>Amount (AED)</th>
+                    <th>Submitted By</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let o of filteredOrders">
+                    <td class="order-id">{{ o.id | slice:0:8 }}...</td>
+                    <td class="item-name">{{ o.item }}</td>
+                    <td class="amount">{{ o.amount | number:'1.2-2' }}</td>
+                    <td>{{ o.submittedBy || '-' }}</td>
+                    <td>
+                        <span class="status-badge" [attr.data-status]="o.status?.toLowerCase()">{{ o.status }}</span>
+                    </td>
+                    <td>
+                        <a *ngIf="isPending(o.status)" routerLink="/manager/pending" class="action-link">Review</a>
+                        <span *ngIf="!isPending(o.status)" class="text-muted">—</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="filteredOrders.length === 0" class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" width="40" height="40">
+                <path
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <h3>No orders found</h3>
+            <p>No orders match the selected filter.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="pending-page">
+    <div class="page-header">
+        <div>
+            <h1>Pending Approvals</h1>
+            <p class="page-description">Review and approve purchase order requests requiring manual approval</p>
+        </div>
+        <span class="count-badge" *ngIf="!loading">{{ orders.length }} pending</span>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading pending orders...</span>
+    </div>
+
+    <!-- Order Cards -->
+    <div *ngIf="!loading && orders.length > 0" class="orders-list">
+        <div class="order-card" *ngFor="let o of orders">
+            <div class="order-card-body">
+                <div class="order-main">
+                    <div class="order-top-row">
+                        <span class="order-id">{{ o.id | slice:0:8 }}...</span>
+                        <span class="status-badge pending">PENDING</span>
+                    </div>
+                    <h3 class="order-item">{{ o.item }}</h3>
+                    <p class="order-desc" *ngIf="o.description">{{ o.description }}</p>
+                    <div class="order-meta">
+                        <div class="meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
+                                <path
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <strong>AED {{ o.amount | number:'1.2-2' }}</strong>
+                        </div>
+                        <div class="meta-item" *ngIf="o.submittedBy">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
+                                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>{{ o.submittedBy }}</span>
+                        </div>
+                        <div class="meta-item" *ngIf="o.createdAt">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
+                                <path
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <span>{{ o.createdAt }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <button class="btn btn-approve" (click)="approve(o)" [disabled]="actionLoading[o.id]">
+                        <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        {{ actionLoading[o.id] ? 'Processing...' : 'Approve' }}
+                    </button>
+                    <button class="btn btn-reject" (click)="openRejectModal(o.id)" [disabled]="actionLoading[o.id]">
+                        <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && orders.length === 0" class="empty-state">
+        <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" width="48" height="48">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <h3>All caught up!</h3>
+        <p>No pending approvals at the moment.</p>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h3>Reject Order</h3>
+        <p>Please provide a reason for rejecting this order.</p>
+        <textarea [(ngModel)]="rejectReasons[showRejectModal!]" placeholder="Reason for rejection..." rows="3"
+            class="modal-textarea">
+    </textarea>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="closeRejectModal()">Cancel</button>
+            <button class="btn btn-reject" (click)="confirmReject()">Confirm Reject</button>
+        </div>
+    </div>
+</div>

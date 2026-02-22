@@ -1,0 +1,96 @@
+{
+  "version": 3,
+  "name": "tasreeh-po-gateway",
+  "port": 8080,
+  "timeout": "3000ms",
+
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": [
+        "http://localhost:4200",
+        "http://localhost:56782",
+        "http://localhost:4201"
+      ],
+      "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allow_headers": ["Authorization", "Content-Type"],
+      "expose_headers": ["Content-Length", "Content-Type"],
+      "allow_credentials": true,
+      "max_age": "12h"
+    }
+  },
+
+  "endpoints": [
+    {
+      "endpoint": "/api/orders",
+      "method": "POST",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/orders",
+      "method": "GET",
+      "input_headers": ["Authorization"],
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/orders/my",
+      "method": "GET",
+      "input_headers": ["Authorization"],
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders/my",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/orders/pending",
+      "method": "GET",
+      "input_headers": ["Authorization"],
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders/pending",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/orders/{id}/approve",
+      "method": "PUT",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders/{id}/approve"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/orders/{id}/reject",
+      "method": "PUT",
+      "input_headers": ["Authorization", "Content-Type"],
+      "backend": [
+        {
+          "host": ["http://order-service:8082"],
+          "url_pattern": "/orders/{id}/reject"
+        }
+      ]
+    }
+  ]
+}
