@@ -58,7 +58,9 @@ tasreeh-poc/
 
 From project root:
 
-docker compose down -v docker compose up -d --build
+docker compose down -v 
+
+docker compose up -d --build
 
 This starts:
 
@@ -203,4 +205,4 @@ docker compose down -v
 
 # Author
 
-Tasreeh PO Approval -- Event Driven Microservices Architecture POC
+Rapiddata
