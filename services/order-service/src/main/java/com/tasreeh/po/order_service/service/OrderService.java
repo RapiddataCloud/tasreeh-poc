@@ -67,12 +67,12 @@ public class OrderService {
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("========================================================");
-                        log.error("[ORDER-SERVICE] ❌ FAILED to send to Kafka!");
+                        log.error("[ORDER-SERVICE] FAILED to send to Kafka!");
                         log.error("[ORDER-SERVICE]   error = {}", ex.getMessage());
                         log.error("========================================================");
                     } else {
                         log.info("========================================================");
-                        log.info("[ORDER-SERVICE] ✅ Kafka CONFIRMED delivery");
+                        log.info("[ORDER-SERVICE] Kafka CONFIRMED delivery");
                         log.info("[ORDER-SERVICE]   topic     = {}", result.getRecordMetadata().topic());
                         log.info("[ORDER-SERVICE]   partition = {}", result.getRecordMetadata().partition());
                         log.info("[ORDER-SERVICE]   offset    = {}", result.getRecordMetadata().offset());

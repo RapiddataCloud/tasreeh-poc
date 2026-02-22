@@ -46,7 +46,7 @@ export class RealtimeService {
 
     this.ws.onopen = () => {
       console.log('========================================================');
-      console.log('[ANGULAR-WS] ✅ WebSocket CONNECTED successfully');
+      console.log('[ANGULAR-WS]  WebSocket CONNECTED successfully');
       console.log('========================================================');
     };
 
@@ -75,7 +75,7 @@ export class RealtimeService {
 
     this.ws.onerror = (err) => {
       console.error('========================================================');
-      console.error('[ANGULAR-WS] ❌ WebSocket ERROR:', err);
+      console.error('[ANGULAR-WS]  WebSocket ERROR:', err);
       console.error('========================================================');
     };
 

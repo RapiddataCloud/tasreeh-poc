@@ -36,7 +36,7 @@ public class OrderStatusChangedConsumer {
     @DltHandler
     public void handleDlt(OrderStatusChangedEvent event) {
         log.error("========================================================");
-        log.error("[ORDER-SERVICE] ❌ DLT — Failed after all retries");
+        log.error("[ORDER-SERVICE]   DLT — Failed after all retries");
         log.error("[ORDER-SERVICE]   orderId = {}", event.getOrderId());
         log.error("[ORDER-SERVICE]   status  = {} -> {}", event.getPreviousStatus(), event.getNewStatus());
         log.error("[ORDER-SERVICE]   reason  = {}", event.getReason());
