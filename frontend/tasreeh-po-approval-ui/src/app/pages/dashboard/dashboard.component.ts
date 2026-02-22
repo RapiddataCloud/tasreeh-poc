@@ -19,8 +19,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loading = true;
 
   private sub = new Subscription();
-  /** Tracks WS status updates that arrived before orders were loaded */
+  /** Tracks WS status updates that arrived before the API response */
   private pendingUpdates: StatusUpdate[] = [];
+  /** All WS updates received during this session — replayed after each data load */
+  private allWsUpdates: StatusUpdate[] = [];
   private ordersLoaded = false;
 
   constructor(
@@ -61,9 +63,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.orders = data;
           this.ordersLoaded = true;
           this.loading = false;
-          this.applyPendingUpdates();
+          // Re-apply ALL WebSocket updates received during this session,
+          // because the API data may be stale compared to WS notifications
+          this.reapplyAllWsUpdates();
           this.cdr.detectChanges();
-          // Store in IndexedDB for next visit
+          // Store in IndexedDB for next visit (with WS-corrected statuses)
           try { await this.idb.storeOrders(this.orders); } catch (e) { /* ignore */ }
         },
         error: (err) => {
@@ -85,6 +89,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.applyStatusUpdate(u);
     }
     this.pendingUpdates = [];
+  }
+
+  /**
+   * Re-apply ALL WebSocket updates received during this session.
+   * Called after the API response overwrites this.orders, because the API
+   * data may be stale (e.g. still showing CREATED when WS already sent PENDING_APPROVAL).
+   */
+  private reapplyAllWsUpdates() {
+    // First apply any still-pending updates
+    this.applyPendingUpdates();
+    // Then re-apply all WS updates we've ever received this session
+    if (this.allWsUpdates.length > 0) {
+      console.log('[Employee Dashboard] Re-applying', this.allWsUpdates.length, 'WS updates over API data');
+      for (const u of this.allWsUpdates) {
+        this.applyStatusUpdate(u);
+      }
+    }
   }
 
   /** Apply a single status update to the orders array */
@@ -119,6 +140,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('[Employee Dashboard]   newStatus =', u.newStatus);
         console.log('[Employee Dashboard]   reason    =', u.reason);
         console.log('========================================================');
+
+        // Always record the update so it can be replayed after API refreshes
+        this.allWsUpdates.push(u);
 
         // If orders haven't loaded yet, queue the update for later
         if (!this.ordersLoaded && this.orders.length === 0) {
